@@ -1,0 +1,31 @@
+# /* vim: set tabstop=2:softtabstop=2:shiftwidth=2 */ 
+---
+# This playbook deploys whole system configuration. Every configuration
+# is specific for certain hosts.
+
+# Base server setup. Applicable for all machines.
+- name: Base Server Configuration
+  hosts: all
+  sudo: yes
+  roles:
+    - pavlov99.openblas
+  tasks:
+    - name: Add wheel group
+      lineinfile: "dest=/etc/sudoers state=present regexp='^%wheel' line='%wheel ALL=(ALL) NOPASSWD: ALL'"
+    # - name: Update apt-cache
+    #   apt:
+    #     update_cache: yes
+    #     cache_valid_time: 3600
+    - name: Install basic packages
+      apt: name={{ item }} state=present update_cache=yes cache_valid_time=3600
+      with_items:
+        - build-essential
+        - python-virtualenv
+        - python-dev
+        - python3-dev
+        # https://unix.stackexchange.com/questions/332641/how-to-install-python-3-6#answer-332658
+        # - software-properties-common  # required for apt-add-repository
+        # sudo add-apt-repository ppa:yannubuntu/boot-repair
+    # - name: Add repositories
+    #   apt_repository:
+    #     repo: 'ppa:nginx/stable'
